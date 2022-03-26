@@ -2,6 +2,7 @@
 #include <string>
 #include "Notebook.hpp"
 #include <unordered_map>
+#include <stdexcept>
 #include <vector>
 
 namespace ariel{
@@ -34,38 +35,37 @@ namespace ariel{
 
     void Notebook::write_Horizontal(int page, int row, int colum, const std::string &word)
     {
-        if(colum+word.length()-1>maxcolum)
+
+        if(colum+int(word.length())-1>maxcolum)
         {
             throw std::invalid_argument("cant insert in to this colum");
         }
-        //check can write
+        //check if this page olredy exist
         if(My_book.find(page) == My_book.end())
         {
             std::unordered_map<int,std::vector<char>> temp;
             My_book[page] = temp;
-            My_book[page][row] = std::vector<char>(100,'_');
         }
-        else
+
+        //check if row exist
+        if(My_book[page].find(row) == My_book[page].end())
         {
-            if(My_book[page].find(row) == My_book[page].end())
+            My_book[page][row] = std::vector<char>(maxcolum+1,'_');
+        }
+
+        //check can write if not throw
+        for(int curr = 0; curr < word.length(); curr++)
+        {
+            if(My_book[page][row][uint(colum+curr)]!= '_')
             {
-                My_book[page][row] = std::vector<char>(100,'_');
-            }
-            else
-            {
-                for(int curr = 0; curr < word.length(); curr++)
-                {
-                    if(My_book[page][row][colum+curr]!= '_')
-                    {
-                        throw std::invalid_argument("you cant write here this place is writen");
-                    }
-                }
+                throw std::invalid_argument("you cant write here this place is writen");
             }
         }
+        
         //if can
         for(int curr = 0; curr <= word.length(); curr++)
         {
-            My_book[page][row][colum+curr] = word[curr];
+            My_book[page][row][uint(colum+curr)] = word[uint(curr)];
         } 
     }
 
@@ -75,40 +75,29 @@ namespace ariel{
         {
             std::unordered_map<int,std::vector<char>> temp;
             My_book[page] = temp;
-            for(int curr=0;curr<word.length();curr++)
+        }
+        for(int curr=0;curr<word.length();curr++)
+        {
+            if(My_book[page].find(row+curr) == My_book[page].end())
             {
-                My_book[page][row] = std::vector<char>(100,'_');
+                My_book[page][row+curr] = std::vector<char>(maxcolum+1,'_');
+                My_book[page][row+curr][uint(colum)] = word[uint(curr)];
+            }
+            else
+            {
+                if(My_book[page][row][uint(colum)]!= '_')
+                {
+                    throw std::invalid_argument("you cant write here this place is writen");
+                }
+                My_book[page][row+curr][uint(colum)] = word[uint(curr)];
             }
         }
-        else
-        {
-            for(int curr=0;curr<word.length();curr++)
-            {
-                if(My_book[page].find(row+curr) == My_book[page].end())
-                {
-                    My_book[page][row+curr] = std::vector<char>(100,'_');
-                }
-                else
-                {
-                    if(My_book[page][row][colum]!= '_')
-                    {
-                        throw std::invalid_argument("you cant write here this place is writen");
-                    }
-                }
-            }
-        }
-
-        //if can
-        for(int curr = 0; curr <= word.length(); curr++)
-        {
-            My_book[page][row+curr][colum] = word[curr];
-        } 
     }
     
     std::string Notebook::read(int page,int row, int colum, ariel::Direction dir, int length)
     {
         //check negtive numbers
-        if(page<0||row<0||colum<0)
+        if(page<0||row<0||colum<0||length<1)
         {
             throw std::invalid_argument("bad input can get negetive numbers");
         }
@@ -122,14 +111,12 @@ namespace ariel{
         {
             return read_Horizontal(page,row,colum,length);
         }
-        else{
-            return read_Vertical(page,row,colum,length);
-        }
+        return read_Vertical(page,row,colum,length);
     }
 
     std::string Notebook::read_Horizontal(int page, int row, int colum, int length)
     {
-        std::string ans = "";
+        std::string ans;
         if(colum+length-1>maxcolum)
         {
             throw std::invalid_argument("cant read from this colum");
@@ -139,7 +126,7 @@ namespace ariel{
         {
             for(int i=0;i<length;i++)
             {
-                ans = ans+"_";
+                ans +="_";
             }
             return ans;
         }
@@ -149,27 +136,27 @@ namespace ariel{
         {
             for(int i=0;i<length;i++)
             {
-                ans = ans+"_";
+                ans +="_";
             }
             return ans;
         }
         //read the row
         for(int curr = 0; curr < length; curr++)
         {
-            ans = ans + My_book[page][row][colum+curr];
+            ans += My_book[page][row][uint(colum+curr)];
         }
         return ans;
     }
 
     std::string Notebook::read_Vertical(int page, int row, int colum, int length)
     {
-        std::string ans = "";
+        std::string ans;
         //check not null page
         if(My_book.find(page) == My_book.end())
         {
             for(int i=0;i<length;i++)
             {
-                ans = ans+"_";
+                ans +="_";
             }
             return ans;
         }
@@ -179,11 +166,11 @@ namespace ariel{
         {
             if(My_book[page].find(row+curr) == My_book[page].end())
             {
-                ans = ans+"_";
+                ans +="_";
             }
             else
             {
-                 ans = ans + My_book[page][row+curr][colum];
+                 ans += My_book[page][row+curr][uint(colum)];
             }
         }
         return ans;
@@ -191,8 +178,8 @@ namespace ariel{
 
     void Notebook::erase(int page, int row, int colum, ariel::Direction dir, int length)
     {
-//check negtive numbers
-        if(page<0||row<0||colum<0)
+        //check negtive numbers
+        if(page<0||row<0||colum<0||length<1)
         {
             throw std::invalid_argument("bad input can get negetive numbers");
         }
@@ -225,11 +212,11 @@ namespace ariel{
         }
         if(My_book[page].find(row) == My_book[page].end())
         {
-            My_book[page][row] = std::vector<char>(100,'_');
+            My_book[page][row] = std::vector<char>(maxcolum+1,'_');
         }
         for(int curr = 0; curr < length; curr++)
         {
-            My_book[page][row][colum+curr] = '~';
+            My_book[page][row][uint(colum+curr)] = '~';
         }
     }
     
@@ -244,12 +231,13 @@ namespace ariel{
         {
             if(My_book[page].find(row+curr) == My_book[page].end())
             {
-                My_book[page][row] = std::vector<char>(100,'_');
+                My_book[page][row+curr] = std::vector<char>(maxcolum+1,'_');
             }
-            My_book[page][row][colum+curr] = '~';
+            My_book[page][row+curr][uint(colum)] = '~';
         } 
 
     }
+    
     void Notebook::show(int page)
     {
 

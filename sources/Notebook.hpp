@@ -8,7 +8,6 @@ namespace ariel{
         private:
             static const int maxcolum = 99;
             std::unordered_map<int, std::unordered_map<int,std::vector<char>>>My_book;
-
             void write_Horizontal(int page, int row, int colum, const std::string &word);
             void write_Vertical(int page, int row, int colum, const std::string &word);
             std::string read_Horizontal(int page, int row, int colum, int length);
