@@ -1,5 +1,6 @@
 #include "Direction.hpp"
 #include <string>
+#include <iostream>
 #include "Notebook.hpp"
 #include <unordered_map>
 #include <stdexcept>
@@ -240,7 +241,20 @@ namespace ariel{
     
     void Notebook::show(int page)
     {
-
+        const int start_row_showed = 10;
+        //firest we show 10 row then we ask the user how many more rows to show
+        int num_rows = start_row_showed;
+        int curr_row = 0;
+        while (num_rows >0)
+        {
+            for(int curr=0;curr<num_rows;curr++)
+            {
+                std::cout<< curr_row <<" : "<<read(page,curr_row,0,ariel::Direction::Horizontal,maxcolum+1)<< std::endl;
+                curr_row++;
+            }
+            std::cout<< "insert the numbers of more row you want to see:"<<std::endl<< "for exit put 0";
+            std::cin>>num_rows;
+        }
     }
 }
 
