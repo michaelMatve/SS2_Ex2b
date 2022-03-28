@@ -6,6 +6,8 @@
 namespace ariel{
     class Notebook{
         private:
+            const int minchar = 32;
+            const int maxchar = 125;
             static const int maxcolum = 99;
             std::unordered_map<int, std::unordered_map<int,std::vector<char>>>My_book;
             void write_Horizontal(int page, int row, int colum, const std::string &word);

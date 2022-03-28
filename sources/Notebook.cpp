@@ -9,10 +9,12 @@
 namespace ariel{
     void Notebook::write(int page,int row, int colum, ariel::Direction dir, const std::string &word)
     {
-        //check contain ~
-        if(word.find('~')!=std::string::npos)
+        for (int i=0;i<word.length();i++)
         {
-            throw std::invalid_argument("can wrote ~");
+            if(word[uint(i)]<minchar||word[uint(i)]>maxchar)
+            {
+                throw std::invalid_argument("bad input can get this word");
+            }
         }
         //check negtive numbers
         if(page<0||row<0||colum<0)
@@ -64,7 +66,7 @@ namespace ariel{
         }
         
         //if can
-        for(int curr = 0; curr <= word.length(); curr++)
+        for(int curr = 0; curr < word.length(); curr++)
         {
             My_book[page][row][uint(colum+curr)] = word[uint(curr)];
         } 
@@ -86,7 +88,7 @@ namespace ariel{
             }
             else
             {
-                if(My_book[page][row][uint(colum)]!= '_')
+                if(My_book[page][row+curr][uint(colum)]!= '_')
                 {
                     throw std::invalid_argument("you cant write here this place is writen");
                 }
@@ -253,7 +255,8 @@ namespace ariel{
                 curr_row++;
             }
             std::cout<< "insert the numbers of more row you want to see:"<<std::endl<< "for exit put 0";
-            std::cin>>num_rows;
+            //std::cin>>num_rows;
+            num_rows = 0;
         }
     }
 }
